@@ -12,15 +12,7 @@ interface MissionDetailViewProps {
   onBack: () => void;
 }
 
-function MetaCell({
-  k,
-  v,
-  mono,
-}: {
-  k: string;
-  v: ReactNode;
-  mono?: boolean;
-}) {
+function MetaCell({ k, v, mono }: { k: string; v: ReactNode; mono?: boolean }) {
   return (
     <div className="meta-cell">
       <div className="k">{k}</div>
@@ -30,14 +22,20 @@ function MetaCell({
 }
 
 /**
- * Past-mission detail — the design's split: map fills, captures rail docks
- * right, metadata floats bottom-left, legend top-right, viewer one click away.
- * Owns the single source of truth for the selected capture (`seq`) so the map
- * cone, rail thumb, and open image stay in lockstep.
+ * Past-mission detail — the design's split: telemetry sidebar (left), map
+ * (fills), captures rail (right), legend floating top-right, viewer one click
+ * away. Owns the single source of truth for the selected capture (`seq`) so the
+ * map cone, rail thumb, and open image stay in lockstep.
  *
- * Data, split by fitness (unchanged from the data layer): useMissionDetail →
- * metadata + abort reason; useMissionPath → all map geometry + the complete
- * capture list the viewer steps through; CapturesRail → paginated /captures.
+ * NB: the Mapbox-backed map + this layout stay on the hand-written CSS classes
+ * (styles/operator.css + index.css). Converting them to Tailwind utilities
+ * repeatedly destabilised the live WebGL canvas (it loaded tiles but painted
+ * black), so this surface is deliberately left on the CSS-class version that
+ * renders reliably. See SOLUTION.md.
+ *
+ * Data, split by fitness: useMissionDetail → metadata + abort reason;
+ * useMissionPath → all map geometry + the complete capture list the viewer
+ * steps through; CapturesRail → paginated /captures.
  */
 export function MissionDetailView({ missionId, onBack }: MissionDetailViewProps) {
   const detail = useMissionDetail(missionId);
@@ -91,12 +89,14 @@ export function MissionDetailView({ missionId, onBack }: MissionDetailViewProps)
         <aside className="telemetry-sidebar">
           {mission && (
             <>
-              <div className="meta-card-head">
-                <span className="eyebrow">Mission Telemetry</span>
-              </div>
+              <div
+                className="meta-card-head"
+                style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 6 }}
+              >
+                <span className="eyebrow" style={{ width: 'fit-content' }}>
+                  Mission Telemetry
+                </span>
                 <span className="tag">{mission.id}</span>
-              <div>
-
               </div>
               <div className="meta-grid">
                 <MetaCell k="Drone" v={mission.drone.model} />

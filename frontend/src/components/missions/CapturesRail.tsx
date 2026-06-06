@@ -21,7 +21,11 @@ function Thumb({
 }) {
   return (
     <div
-      className={`thumb${selected ? ' selected' : ''}`}
+      className={`relative aspect-[4/3] cursor-pointer overflow-hidden rounded-lg border-[1.5px] bg-bg-3 outline-none transition hover:z-[2] hover:scale-[1.04] ${
+        selected
+          ? 'z-[3] scale-[1.04] border-acc shadow-[0_0_0_3px_#4fe3a129]'
+          : 'border-transparent'
+      }`}
       role="button"
       tabIndex={0}
       data-seq={cap.seq}
@@ -37,10 +41,13 @@ function Thumb({
         alt={`capture ${cap.seq}`}
         loading="lazy"
         draggable={false}
-        onLoad={(e) => e.currentTarget.classList.add('loaded')}
+        className="h-full w-full object-cover opacity-0 transition-opacity duration-300"
+        onLoad={(e) => e.currentTarget.classList.remove('opacity-0')}
       />
-      <span className="seq">{cap.seq}</span>
-      <span className="hd">
+      <span className="absolute left-1 top-1 rounded bg-black/80 px-1 py-px text-2xs font-semibold text-white backdrop-blur-sm">
+        {cap.seq}
+      </span>
+      <span className="absolute bottom-1 right-1 text-acc opacity-90">
         <Icon name="camera" size={12} />
       </span>
     </div>
@@ -74,7 +81,7 @@ export function CapturesRail({ missionId, selectedSeq, onOpen }: CapturesRailPro
     const cont = gridRef.current;
     if (!cont) return;
     requestAnimationFrame(() => {
-      const el = cont.querySelector<HTMLElement>(`.thumb[data-seq="${selectedSeq}"]`);
+      const el = cont.querySelector<HTMLElement>(`[data-seq="${selectedSeq}"]`);
       if (el) {
         cont.scrollTo({
           top: Math.max(0, el.offsetTop - cont.clientHeight / 2 + el.clientHeight / 2),
@@ -85,16 +92,19 @@ export function CapturesRail({ missionId, selectedSeq, onOpen }: CapturesRailPro
   }, [selectedSeq, loaded]);
 
   return (
-    <aside className="cap-rail">
-      <div className="cap-head">
-        <div className="cap-head-top">
-          <h3>Captures</h3>
-          <span className="count">{total}</span>
+    <aside className="hidden min-h-0 flex-col border-l border-line bg-bg-4 md:flex">
+      <div className="flex-none border-b border-line px-4 pb-3 pt-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold tracking-tight">Captures</h3>
+          <span className="text-xs text-acc">{total}</span>
         </div>
-        <div className="cap-progress">
-          <i style={{ width: `${pct}%` }} />
+        <div className="mt-3 h-1 overflow-hidden rounded-full bg-bg-3">
+          <i
+            className="block h-full rounded-full bg-acc transition-[width] duration-300"
+            style={{ width: `${pct}%` }}
+          />
         </div>
-        <div className="cap-progress-label">
+        <div className="mt-2 flex justify-between text-2xs tracking-wider text-t-lo">
           <span>{loaded < total ? 'Indexing captures…' : 'All captures indexed'}</span>
           <span>
             {loaded} / {total}
@@ -102,7 +112,7 @@ export function CapturesRail({ missionId, selectedSeq, onOpen }: CapturesRailPro
         </div>
       </div>
 
-      <div className="cap-grid scroll" ref={gridRef}>
+      <div className="scroll grid flex-1 grid-cols-3 content-start gap-2 p-3" ref={gridRef}>
         {captures.map((c) => (
           <Thumb
             key={c.image_id}
@@ -113,7 +123,7 @@ export function CapturesRail({ missionId, selectedSeq, onOpen }: CapturesRailPro
         ))}
         {loaded < total &&
           Array.from({ length: Math.min(6, total - loaded) }).map((_, i) => (
-            <div key={`s${i}`} className="thumb-skel skel" />
+            <div key={`s${i}`} className="skel aspect-[4/3] rounded-lg" />
           ))}
       </div>
     </aside>
