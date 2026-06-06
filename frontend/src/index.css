@@ -1,0 +1,169 @@
+@import 'tailwindcss';
+/* "Operator Control Room" design system — tokens (:root vars), base, and the
+   component classes ported verbatim from the design reference. This is the
+   source of truth for colors, type, radii, shadows, easing. */
+@import './styles/operator.css';
+
+/* Bridge the design tokens into Tailwind's theme so utility classes
+   (bg-acc, text-danger, border-line, font-mono…) resolve to the same palette
+   the .operator classes use. Surfaces still on Tailwind utilities pick these
+   up; ported surfaces use the semantic classes directly. */
+@theme {
+  --color-bg-0: #0b0d0e;
+  --color-bg-1: #111416;
+  --color-bg-2: #171b1e;
+  --color-bg-3: #1f2429;
+  --color-bg-4: #282e34;
+  --color-line: rgba(255, 255, 255, 0.08);
+  --color-line-2: rgba(255, 255, 255, 0.13);
+  --color-t-hi: #eef2f3;
+  --color-t-mid: #a4adb2;
+  --color-t-lo: #6b757b;
+  --color-acc: #4fe3a1;
+  --color-acc-bright: #6df3b4;
+  --color-warn: #f5b13b;
+  --color-danger: #ff6b5e;
+  --color-info: #5aa9ff;
+  /* tints / surfaces used as utility colors during the Tailwind migration */
+  --color-hover: rgba(255, 255, 255, 0.04);
+  --color-line-strong: rgba(255, 255, 255, 0.22);
+  --color-acc-dim: rgba(79, 227, 161, 0.16);
+  --color-acc-line: rgba(79, 227, 161, 0.42);
+  --color-warn-dim: rgba(245, 177, 59, 0.15);
+  --color-danger-dim: rgba(255, 107, 94, 0.15);
+  --color-danger-line: rgba(255, 107, 94, 0.4);
+  --font-sans: 'Hanken Grotesk', -apple-system, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  /* one extra named step below Tailwind's text-xs (12px) for the small
+     uppercase labels (serials, eyebrows, badges) the design uses at ~10–11px */
+  --text-2xs: 0.66rem;
+
+  /* Legacy tokens — kept so the detail / chat / live surfaces (still on the
+     old Tailwind utilities) render until each is ported to the new system. */
+  --color-surface: #0b0d0e;
+  --color-surface-raised: #171b1e;
+  --color-border: #232a38;
+  --color-accent: #4fe3a1;
+}
+
+/* Mute the satellite imagery toward the cockpit look (design filters the
+   tile pane); keeps the emerald flight path + cones reading clearly. */
+.map-canvas .mapboxgl-canvas {
+  filter: saturate(0.9) brightness(0.92) contrast(1.04);
+}
+
+/* Mapbox GL controls — the design only themed MapLibre's class names. */
+.mapboxgl-ctrl-bottom-right {
+  margin: 0 14px 14px 0;
+}
+.mapboxgl-ctrl-group {
+  background: var(--bg-2) !important;
+  border: 1px solid var(--line-2) !important;
+  box-shadow: var(--shadow-1) !important;
+}
+.mapboxgl-ctrl-group button {
+  width: 30px !important;
+  height: 30px !important;
+}
+.mapboxgl-ctrl-group button + button {
+  border-top: 1px solid var(--line) !important;
+}
+.mapboxgl-ctrl-group button span {
+  filter: invert(0.9);
+}
+
+/* Detail layout variant: sticky black header + left telemetry sidebar +
+   map + captures rail. Overrides the reference's floating-overlay layout. */
+.detail-split {
+  display: flex;
+  flex-direction: column;
+}
+.detail-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  background: #000;
+  border-bottom: 1px solid var(--line);
+}
+.detail-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 190px 1fr 348px;
+}
+.telemetry-sidebar {
+  background: var(--bg-4);
+  border-right: 1px solid var(--line);
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.telemetry-sidebar .meta-grid {
+  grid-template-columns: 1fr;
+  border-bottom: 1px solid var(--line);
+}
+.telemetry-sidebar .meta-cell:nth-child(odd) {
+  border-right: none;
+}
+/* Captures rail lifted to match the telemetry sidebar — both a step lighter
+   than the black header. */
+.detail-body .cap-rail {
+  background: var(--bg-4);
+}
+@media (max-width: 1180px) {
+  .detail-body {
+    grid-template-columns: 1fr 348px;
+  }
+  .telemetry-sidebar {
+    display: none;
+  }
+}
+@media (max-width: 840px) {
+  .detail-body {
+    grid-template-columns: 1fr;
+  }
+  .detail-body .cap-rail {
+    display: none;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* chat: message-in + typing dots (referenced via animate-[msgin_…] / animate-[tdot_…]) */
+@keyframes msgin {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes tdot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
